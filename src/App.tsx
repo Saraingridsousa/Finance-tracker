@@ -7,6 +7,8 @@ import { filterTransactionsByPeriod, type Period } from './domain/period';
 import { MainTabs, type MainTab } from './components/MainTabs';
 import { MonthlyBarChart } from './components/MonthlyBarChart';
 import { CategoryPieChart } from './components/CategoryPieChart';
+import { PortfolioBudget } from './components/PortfolioBudget';
+import { initialBudgetPlan } from './domain/budgetAnalytics';
 import { PortfolioCards } from './components/PortfolioCards';
 import { PortfolioConnections, type SyncSource } from './components/PortfolioConnections';
 import { simulateBatch, type SyncReport } from './domain/syncAnalytics';
@@ -26,6 +28,7 @@ export default function App(){
   const [message,setMessage]=useState('');
   const [resetKey,setResetKey]=useState(0);
   const [reports,setReports]=useState<SyncReport[]>([]);
+  const [budgetPlan,setBudgetPlan]=useState(initialBudgetPlan);
   useEffect(()=>{document.documentElement.classList.toggle('dark',dark);return()=>document.documentElement.classList.remove('dark');},[dark]);
   const classified=useMemo(()=>classifyRows(rows,defaultCategories),[rows]);
   const filtered=useMemo(()=>filterTransactionsByPeriod(classified,period,{source:'banking',now:()=>demoReference}),[classified,period]);
@@ -35,7 +38,7 @@ export default function App(){
     const result=simulateBatch(rows,batch,hidden,reports.length+1,source==='all'?'Todas as fontes':source,fail);
     setRows(result.rows);setReports(prev=>[result.report,...prev]);setMessage(result.report.message);
   };
-  const reset=()=>{setRows(initialTransactions());setHidden(new Set());setReports([]);setPeriod('semester');setResetKey(k=>k+1);setMessage('Demonstração restaurada aos dados originais.');};
+  const reset=()=>{setRows(initialTransactions());setHidden(new Set());setReports([]);setBudgetPlan(initialBudgetPlan());setPeriod('semester');setResetKey(k=>k+1);setMessage('Demonstração restaurada aos dados originais.');};
   const patch=(id:string,updates:Partial<Transaction>)=>setRows(prev=>prev.map(tx=>tx.id===id?{...tx,...updates}:tx));
   const cards=[{label:'Receitas liquidadas',value:stats.income,Icon:TrendingUp,color:'text-emerald-600'},{label:'Despesas liquidadas',value:stats.expenses,Icon:TrendingDown,color:'text-rose-500'},{label:'Resultado do período',value:stats.balance,Icon:Wallet,color:'text-cyan-600'},{label:'Aportes no período',value:stats.invested,Icon:PiggyBank,color:'text-violet-500'}];
   return <main className="mx-auto max-w-7xl space-y-6 px-4 py-7 text-slate-900 dark:text-slate-100 sm:px-8">
@@ -56,6 +59,7 @@ export default function App(){
     </>}
     {tab==='cards'&&<PortfolioCards key={resetKey}/>}
     {tab==='investments'&&<PortfolioInvestments key={resetKey}/>}
+    {tab==='budget'&&<PortfolioBudget key={resetKey} rows={classified} categories={defaultCategories} plan={budgetPlan} onPlanChange={setBudgetPlan}/>}
     {tab==='connections'&&<PortfolioConnections rows={rows} reports={reports} onSync={sync}/>}
     </section>
     <footer className="border-t border-slate-200 py-4 text-xs text-slate-500 dark:border-slate-800">Finance Tracker • Demonstração de automação, análise de dados e desenvolvimento de software.</footer>

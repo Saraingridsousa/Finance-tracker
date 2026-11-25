@@ -17,6 +17,7 @@ An independent, static portfolio demonstration adapted from a personal finance a
 - Credit-card analytics: limits, open bills, six-month bill history, category distribution and detailed purchases by card and month; light/dark theme.
 - Connection dashboard with per-source synchronization, duplicate counts, attempt history and simulated failure recovery.
 - Investment portfolio with six fictional assets, consolidated metrics, allocation by class, six-month valuation history, per-asset gains/losses and sortable positions.
+- Monthly planning with editable category budgets, budget versus actual analytics, spending alerts, investment contribution goals and localized CSV reports for selected-month transactions and budgets.
 
 ## Run locally
 
