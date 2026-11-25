@@ -6,7 +6,7 @@
 
 An independent, static portfolio demonstration adapted from a personal finance application. It uses deterministic fictional transactions to showcase automated categorization, financial analytics, interactive visualization and idempotent synchronization.
 
-**Status: initial implementation validated in CI.** The initial pull request passed clean installation, TypeScript checks, automated tests and the production build. GitHub Pages deployment is configured in code, pending activation and successful publication. No live banking connection is available.
+**Live demo:** [Finance Tracker](https://saraingridsousa.github.io/Finance-tracker/) — synthetic data only. The project uses GitHub Actions for validation and static deployment. No live banking connection is available.
 
 ## Features
 
@@ -14,7 +14,8 @@ An independent, static portfolio demonstration adapted from a personal finance a
 - Monthly and category charts driven by shared financial selectors.
 - Search, filters, pagination and manual transaction/category corrections.
 - Simulated synchronization with stable transaction identifiers and reset.
-- Illustrative credit-card views; light/dark theme.
+- Credit-card analytics: limits, open bills, six-month bill history, category distribution and detailed purchases by card and month; light/dark theme.
+- Connection dashboard with per-source synchronization, duplicate counts, attempt history and simulated failure recovery.
 - Investment portfolio with six fictional assets, consolidated metrics, allocation by class, six-month valuation history, per-asset gains/losses and sortable positions.
 
 ## Run locally
@@ -52,7 +53,7 @@ No bank credentials, actual bank API, real data, private configuration, SQLite d
 - [x] Verify clean install, typecheck, tests and build.
 - [ ] Browser accessibility and responsive acceptance.
 - [x] Continuous integration and Pages deployment workflow.
-- [ ] Activate Pages and verify successful publication.
+- [x] Activate Pages and verify successful publication.
 
 ## Author
 

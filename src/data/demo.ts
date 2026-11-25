@@ -39,7 +39,3 @@ export const incomingBatch = ():Transaction[] => [
   make(11,93,[25,'Mercado Vila Nova',9200,'expense']),
   make(11,94,[25,'Restaurante Lago',4500,'expense']),
 ];
-export const demoCards = [
-  {name:'Aurora Platinum',limit:450000,used:126500,bill:82500,due:'10/12/2026'},
-  {name:'Horizonte Gold',limit:300000,used:74500,bill:41000,due:'15/12/2026'},
-];

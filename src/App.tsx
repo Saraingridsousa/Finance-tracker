@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Wallet, TrendingUp, TrendingDown, PiggyBank, RefreshCw, Sun, Moon, RotateCcw, ShieldCheck } from 'lucide-react';
 import { defaultCategories } from './data/defaultCategories';
-import { demoReference, initialTransactions, incomingBatch, demoCards } from './data/demo';
-import { analytics, classifyRows, mergeDemoBatch } from './domain/demoAnalytics';
+import { demoReference, initialTransactions, incomingBatch } from './data/demo';
+import { analytics, classifyRows } from './domain/demoAnalytics';
 import { filterTransactionsByPeriod, type Period } from './domain/period';
 import { MainTabs, type MainTab } from './components/MainTabs';
 import { MonthlyBarChart } from './components/MonthlyBarChart';
 import { CategoryPieChart } from './components/CategoryPieChart';
+import { PortfolioCards } from './components/PortfolioCards';
+import { PortfolioConnections, type SyncSource } from './components/PortfolioConnections';
+import { simulateBatch, type SyncReport } from './domain/syncAnalytics';
 import { PortfolioInvestments } from './components/PortfolioInvestments';
 import { TransactionTable } from './components/TransactionTable';
 import type { Transaction } from './types/finance';
@@ -22,18 +25,23 @@ export default function App(){
   const [dark,setDark]=useState(false);
   const [message,setMessage]=useState('');
   const [resetKey,setResetKey]=useState(0);
+  const [reports,setReports]=useState<SyncReport[]>([]);
   useEffect(()=>{document.documentElement.classList.toggle('dark',dark);return()=>document.documentElement.classList.remove('dark');},[dark]);
   const classified=useMemo(()=>classifyRows(rows,defaultCategories),[rows]);
   const filtered=useMemo(()=>filterTransactionsByPeriod(classified,period,{source:'banking',now:()=>demoReference}),[classified,period]);
   const stats=useMemo(()=>analytics(filtered,defaultCategories),[filtered]);
-  const sync=()=>{const next=mergeDemoBatch(rows,incomingBatch(),hidden);setRows(next);setMessage(next.length===rows.length?'Dados simulados já atualizados. Nenhuma duplicata criada.':`${next.length-rows.length} transações fictícias adicionadas.`);};
-  const reset=()=>{setRows(initialTransactions());setHidden(new Set());setPeriod('semester');setResetKey(k=>k+1);setMessage('Demonstração restaurada aos dados originais.');};
+  const sync=(source:SyncSource='all',fail=false)=>{
+    const batch=incomingBatch().filter(r=>source==='all'||r.bankName===source);
+    const result=simulateBatch(rows,batch,hidden,reports.length+1,source==='all'?'Todas as fontes':source,fail);
+    setRows(result.rows);setReports(prev=>[result.report,...prev]);setMessage(result.report.message);
+  };
+  const reset=()=>{setRows(initialTransactions());setHidden(new Set());setReports([]);setPeriod('semester');setResetKey(k=>k+1);setMessage('Demonstração restaurada aos dados originais.');};
   const patch=(id:string,updates:Partial<Transaction>)=>setRows(prev=>prev.map(tx=>tx.id===id?{...tx,...updates}:tx));
   const cards=[{label:'Receitas liquidadas',value:stats.income,Icon:TrendingUp,color:'text-emerald-600'},{label:'Despesas liquidadas',value:stats.expenses,Icon:TrendingDown,color:'text-rose-500'},{label:'Resultado do período',value:stats.balance,Icon:Wallet,color:'text-cyan-600'},{label:'Aportes no período',value:stats.invested,Icon:PiggyBank,color:'text-violet-500'}];
   return <main className="mx-auto max-w-7xl space-y-6 px-4 py-7 text-slate-900 dark:text-slate-100 sm:px-8">
     <header className="flex flex-wrap items-center justify-between gap-4">
       <div><div className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400">Portfolio • Financial analytics</div><h1 className="mt-1 text-3xl font-bold tracking-tight">Finance Tracker</h1><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Análise financeira e automação de transações</p></div>
-      <div className="flex flex-wrap gap-2"><button className={btn} onClick={()=>setDark(v=>!v)} aria-label={dark?'Ativar tema claro':'Ativar tema escuro'}>{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className={btn} onClick={reset}><RotateCcw size={16}/> Restaurar demo</button><button className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-700" onClick={sync}><RefreshCw size={16}/> Simular sincronização</button></div>
+      <div className="flex flex-wrap gap-2"><button className={btn} onClick={()=>setDark(v=>!v)} aria-label={dark?'Ativar tema claro':'Ativar tema escuro'}>{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className={btn} onClick={reset}><RotateCcw size={16}/> Restaurar demo</button><button className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-700" onClick={()=>sync()}><RefreshCw size={16}/> Simular sincronização</button></div>
     </header>
     <div className="flex items-start gap-3 rounded-xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-900 dark:border-cyan-900 dark:bg-cyan-950 dark:text-cyan-100"><ShieldCheck className="shrink-0" size={21}/><div><strong>Modo demonstração • 100% fictício</strong><p>Não há conexão bancária real. Os dados e alterações ficam somente na memória desta página. Referência: 25/11/2026.</p></div></div>
     <p role="status" aria-live="polite" className="text-sm text-cyan-700 dark:text-cyan-300">{message}</p>
@@ -46,9 +54,9 @@ export default function App(){
       <div className="grid gap-4 lg:grid-cols-2"><article className={panel}><h3 className="mb-3 font-semibold">Evolução mensal</h3><MonthlyBarChart data={stats.monthly}/></article><article className={panel}><h3 className="font-semibold">Despesas por categoria</h3>{stats.categories.length?<><CategoryPieChart data={stats.categories}/><div className="grid gap-2 sm:grid-cols-2">{stats.categories.map(c=><div className="flex items-center justify-between gap-2 text-xs" key={c.name}><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{background:c.color}}/>{c.name}</span><span className="tabular-nums">{brl(c.value)}</span></div>)}</div></>:<p className="p-6 text-sm">Sem despesas no período.</p>}</article></div>
       <article className={panel}><h3 className="mb-4 text-lg font-semibold">Transações fictícias</h3><TransactionTable key={resetKey+':'+period} transactions={filtered} categories={defaultCategories} onUpdateCategory={(id,categoryId)=>patch(id,{categoryId,manualCategory:true})} onUpdateTransaction={patch} onDeleteTransaction={id=>{setHidden(prev=>new Set([...prev,id]));setRows(prev=>prev.filter(tx=>tx.id!==id));}}/></article>
     </>}
-    {tab==='cards'&&<><h2 className="text-xl font-semibold">Cartões simulados</h2><p className="text-sm text-slate-500">Saldos e faturas ilustrativos, independentes do resultado do período.</p><div className="grid gap-4 md:grid-cols-2">{demoCards.map(c=><article key={c.name} className={panel}><div className="rounded-xl bg-gradient-to-br from-cyan-700 to-indigo-900 p-6 text-white"><p className="text-xs uppercase tracking-widest">Cartão fictício</p><h3 className="mt-3 text-xl font-bold">{c.name}</h3><p className="mt-5 text-sm">Limite disponível</p><strong className="text-2xl">{brl((c.limit-c.used)/100)}</strong></div><div className="mt-4 flex justify-between"><span>Fatura • {c.due}</span><strong>{brl(c.bill/100)}</strong></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"><div className="h-full bg-cyan-600" style={{width:c.used/c.limit*100+'%'}}/></div><p className="mt-2 text-xs text-slate-500">Limite total {brl(c.limit/100)}</p></article>)}</div></>}
+    {tab==='cards'&&<PortfolioCards key={resetKey}/>}
     {tab==='investments'&&<PortfolioInvestments key={resetKey}/>}
-    {tab==='connections'&&<article className={panel}><h2 className="text-xl font-semibold">Integração simulada</h2><p className="mt-2 text-sm">Banco Aurora e Banco Horizonte são fontes fictícias. A sincronização importa um lote determinístico e evita duplicação por identificador. Não há API externa, credenciais ou persistência.</p><button className={btn+' mt-4'} onClick={sync}><RefreshCw size={16}/> Importar lote fictício</button><p className="mt-3 text-sm">Registros na sessão: {rows.length}</p></article>}
+    {tab==='connections'&&<PortfolioConnections rows={rows} reports={reports} onSync={sync}/>}
     </section>
     <footer className="border-t border-slate-200 py-4 text-xs text-slate-500 dark:border-slate-800">Finance Tracker • Demonstração de automação, análise de dados e desenvolvimento de software.</footer>
   </main>;
