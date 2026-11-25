@@ -14,7 +14,8 @@ An independent, static portfolio demonstration adapted from a personal finance a
 - Monthly and category charts driven by shared financial selectors.
 - Search, filters, pagination and manual transaction/category corrections.
 - Simulated synchronization with stable transaction identifiers and reset.
-- Illustrative credit-card and investment views; light/dark theme.
+- Illustrative credit-card views; light/dark theme.
+- Investment portfolio with six fictional assets, consolidated metrics, allocation by class, six-month valuation history, per-asset gains/losses and sortable positions.
 
 ## Run locally
 
@@ -36,7 +37,7 @@ flowchart LR
  C --> D[React dashboard and charts]
 ```
 
-The demo excludes pending and non-BRL transactions from BRL consumption totals, and treats confirmed own-account transfers, recognized investment allocations and credit-card bill payments separately. A Pix payment alone is not evidence of a self-transfer. The investment and card panels contain independent illustrative snapshots, not reconciled balances. No market prices are fetched.
+The demo excludes pending and non-BRL transactions from BRL consumption totals, and treats confirmed own-account transfers, recognized investment allocations and credit-card bill payments separately. A Pix payment alone is not evidence of a self-transfer. The investment and card panels contain independent illustrative snapshots, not reconciled balances. Investment variation is calculated against position cost and is not time-weighted performance; historical values are synthetic. No market prices are fetched.
 
 ## Privacy
 
