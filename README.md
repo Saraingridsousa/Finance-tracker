@@ -6,7 +6,7 @@
 
 An independent, static portfolio demonstration adapted from a personal finance application. It uses deterministic fictional transactions to showcase automated categorization, financial analytics, interactive visualization and idempotent synchronization.
 
-**Status: initial implementation; build and tests pending verification.** No public deployment or live banking connection is available yet.
+**Status: initial implementation validated in CI.** The initial pull request passed clean installation, TypeScript checks, automated tests and the production build. GitHub Pages deployment is configured in code, pending activation and successful publication. No live banking connection is available.
 
 ## Features
 
@@ -48,9 +48,10 @@ No bank credentials, actual bank API, real data, private configuration, SQLite d
 - [x] Selected reusable React components and financial rules.
 - [x] Synthetic transaction adapter and interactive demo.
 - [x] Regression test cases for classification, chart consistency and idempotency.
-- [ ] Verify clean install, typecheck, tests and build.
+- [x] Verify clean install, typecheck, tests and build.
 - [ ] Browser accessibility and responsive acceptance.
-- [ ] Continuous integration and static deployment.
+- [x] Continuous integration and Pages deployment workflow.
+- [ ] Activate Pages and verify successful publication.
 
 ## Author
 
