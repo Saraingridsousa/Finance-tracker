@@ -20,6 +20,20 @@ Finance Tracker transforms fragmented financial information into an interactive 
 
 Light/dark theme, responsive layout, keyboard navigation and resettable in-memory data support interactive exploration.
 
+## Application screenshots
+
+Generated from the actual fictional application by the Chromium validation and deployment workflow.
+
+| Financial overview | Investment portfolio |
+| --- | --- |
+| [![Overview](https://saraingridsousa.github.io/Finance-tracker/screenshots/overview.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/overview.png) | [![Investments](https://saraingridsousa.github.io/Finance-tracker/screenshots/investments.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/investments.png) |
+
+| Cards | Planning |
+| --- | --- |
+| [![Cards](https://saraingridsousa.github.io/Finance-tracker/screenshots/cards.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/cards.png) | [![Planning](https://saraingridsousa.github.io/Finance-tracker/screenshots/planning.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/planning.png) |
+
+[Connections](https://saraingridsousa.github.io/Finance-tracker/screenshots/connections.png) · [Dark theme](https://saraingridsousa.github.io/Finance-tracker/screenshots/investments-dark.png) · [Mobile layout](https://saraingridsousa.github.io/Finance-tracker/screenshots/overview-mobile.png)
+
 ## Architecture
 
 ```mermaid
