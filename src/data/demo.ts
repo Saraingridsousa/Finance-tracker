@@ -43,8 +43,3 @@ export const demoCards = [
   {name:'Aurora Platinum',limit:450000,used:126500,bill:82500,due:'10/12/2026'},
   {name:'Horizonte Gold',limit:300000,used:74500,bill:41000,due:'15/12/2026'},
 ];
-export const demoPositions = [
-  {name:'CDB fictício',type:'Renda fixa',cost:400000,value:421000},
-  {name:'ETF fictício',type:'ETF',cost:150000,value:162500},
-  {name:'Tesouro fictício',type:'Tesouro',cost:250000,value:259000},
-];

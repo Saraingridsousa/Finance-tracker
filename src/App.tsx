@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Wallet, TrendingUp, TrendingDown, PiggyBank, RefreshCw, Sun, Moon, RotateCcw, ShieldCheck } from 'lucide-react';
 import { defaultCategories } from './data/defaultCategories';
-import { demoReference, initialTransactions, incomingBatch, demoCards, demoPositions } from './data/demo';
+import { demoReference, initialTransactions, incomingBatch, demoCards } from './data/demo';
 import { analytics, classifyRows, mergeDemoBatch } from './domain/demoAnalytics';
 import { filterTransactionsByPeriod, type Period } from './domain/period';
 import { MainTabs, type MainTab } from './components/MainTabs';
 import { MonthlyBarChart } from './components/MonthlyBarChart';
 import { CategoryPieChart } from './components/CategoryPieChart';
+import { PortfolioInvestments } from './components/PortfolioInvestments';
 import { TransactionTable } from './components/TransactionTable';
 import type { Transaction } from './types/finance';
 const brl=(n:number)=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
@@ -46,7 +47,7 @@ export default function App(){
       <article className={panel}><h3 className="mb-4 text-lg font-semibold">Transações fictícias</h3><TransactionTable key={resetKey+':'+period} transactions={filtered} categories={defaultCategories} onUpdateCategory={(id,categoryId)=>patch(id,{categoryId,manualCategory:true})} onUpdateTransaction={patch} onDeleteTransaction={id=>{setHidden(prev=>new Set([...prev,id]));setRows(prev=>prev.filter(tx=>tx.id!==id));}}/></article>
     </>}
     {tab==='cards'&&<><h2 className="text-xl font-semibold">Cartões simulados</h2><p className="text-sm text-slate-500">Saldos e faturas ilustrativos, independentes do resultado do período.</p><div className="grid gap-4 md:grid-cols-2">{demoCards.map(c=><article key={c.name} className={panel}><div className="rounded-xl bg-gradient-to-br from-cyan-700 to-indigo-900 p-6 text-white"><p className="text-xs uppercase tracking-widest">Cartão fictício</p><h3 className="mt-3 text-xl font-bold">{c.name}</h3><p className="mt-5 text-sm">Limite disponível</p><strong className="text-2xl">{brl((c.limit-c.used)/100)}</strong></div><div className="mt-4 flex justify-between"><span>Fatura • {c.due}</span><strong>{brl(c.bill/100)}</strong></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"><div className="h-full bg-cyan-600" style={{width:c.used/c.limit*100+'%'}}/></div><p className="mt-2 text-xs text-slate-500">Limite total {brl(c.limit/100)}</p></article>)}</div></>}
-    {tab==='investments'&&<><h2 className="text-xl font-semibold">Posições de investimento fictícias</h2><p className="text-sm text-slate-500">Valorações estáticas de exemplo; não representam preços de mercado, operações reais ou rentabilidade realizada.</p><div className="grid gap-4 md:grid-cols-3">{demoPositions.map(p=><article key={p.name} className={panel}><p className="text-sm text-slate-500">{p.type}</p><h3 className="mt-1 font-semibold">{p.name}</h3><p className="mt-3 text-2xl font-bold">{brl(p.value/100)}</p><p className="text-sm text-slate-500">Custo {brl(p.cost/100)}</p><p className="mt-2 text-emerald-600">Variação ilustrativa {brl((p.value-p.cost)/100)}</p></article>)}</div></>}
+    {tab==='investments'&&<PortfolioInvestments key={resetKey}/>}
     {tab==='connections'&&<article className={panel}><h2 className="text-xl font-semibold">Integração simulada</h2><p className="mt-2 text-sm">Banco Aurora e Banco Horizonte são fontes fictícias. A sincronização importa um lote determinístico e evita duplicação por identificador. Não há API externa, credenciais ou persistência.</p><button className={btn+' mt-4'} onClick={sync}><RefreshCw size={16}/> Importar lote fictício</button><p className="mt-3 text-sm">Registros na sessão: {rows.length}</p></article>}
     </section>
     <footer className="border-t border-slate-200 py-4 text-xs text-slate-500 dark:border-slate-800">Finance Tracker • Demonstração de automação, análise de dados e desenvolvimento de software.</footer>
