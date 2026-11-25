@@ -1,44 +1,56 @@
 <h1 align="center">Finance Tracker</h1>
 <p align="center">Personal finance analytics • Automated classification • Simulated banking integration</p>
-<p align="center"><img src="https://skillicons.dev/icons?i=react,ts,vite" alt="Planned stack: React, TypeScript and Vite" /></p>
+<p align="center"><img src="https://skillicons.dev/icons?i=react,ts,vite,tailwind" alt="React, TypeScript, Vite and Tailwind CSS"/></p>
 
 ## Overview
 
-Finance Tracker is a portfolio project focused on transforming financial transactions into clear, actionable insights through automation, data analysis and software engineering.
+An independent, static portfolio demonstration adapted from a personal finance application. It uses deterministic fictional transactions to showcase automated categorization, financial analytics, interactive visualization and idempotent synchronization.
 
-**Status: under development.** This repository is being prepared as an independent, synthetic-data demonstration. No live banking connection or public demo is available yet.
+**Status: initial implementation; build and tests pending verification.** No public deployment or live banking connection is available yet.
 
-## Planned capabilities
+## Features
 
-- Interactive income, expense and cash-flow dashboards.
-- Automated transaction categorization with manual corrections.
-- Period filters, category breakdowns and transaction history.
-- Simulated synchronization using deterministic fictional banking data.
-- Consistent financial rules with automated regression tests.
+- Income, expenses, period result and investment contributions in BRL.
+- Monthly and category charts driven by shared financial selectors.
+- Search, filters, pagination and manual transaction/category corrections.
+- Simulated synchronization with stable transaction identifiers and reset.
+- Illustrative credit-card and investment views; light/dark theme.
+
+## Run locally
+
+Requires Node.js 22.18+ compatible with the locked dependencies.
+
+```bash
+npm ci
+npm run dev
+npm test
+npm run build
+```
 
 ## Architecture
 
-The planned demonstration will use React and TypeScript, a reusable financial domain layer and a synthetic data adapter. The published application will not require bank credentials, a live financial API or access to personal records.
-
 ```mermaid
 flowchart LR
-    A[Synthetic transactions] --> B[Validation and classification]
-    B --> C[Financial calculations]
-    C --> D[Interactive dashboard]
+ A[Fictional fixtures] --> B[In-memory demo adapter]
+ B --> C[Classification and financial selectors]
+ C --> D[React dashboard and charts]
 ```
 
-## Roadmap
-
-- [x] Initialize independent portfolio repository.
-- [ ] Review and select reusable, non-sensitive source files.
-- [ ] Unify financial calculations and add regression tests.
-- [ ] Implement synthetic data fixtures and demo adapter.
-- [ ] Validate build, accessibility and responsive layout.
-- [ ] Configure continuous integration and publish static demo.
+The demo excludes pending and non-BRL transactions from BRL consumption totals, and treats confirmed own-account transfers, recognized investment allocations and credit-card bill payments separately. A Pix payment alone is not evidence of a self-transfer. The investment and card panels contain independent illustrative snapshots, not reconciled balances. No market prices are fetched.
 
 ## Privacy
 
-Only fictional financial data may be committed or used in demonstrations. Never commit secrets, personal financial records, database files, real exports or local configuration. The portfolio repository must remain independent of any private financial environment.
+No bank credentials, actual bank API, real data, private configuration, SQLite databases, or personal Git history are included. Edits exist only in the current page session and are discarded when reloaded. Never enter real personal financial data in the demo.
+
+## Roadmap
+
+- [x] Independent portfolio repository.
+- [x] Selected reusable React components and financial rules.
+- [x] Synthetic transaction adapter and interactive demo.
+- [x] Regression test cases for classification, chart consistency and idempotency.
+- [ ] Verify clean install, typecheck, tests and build.
+- [ ] Browser accessibility and responsive acceptance.
+- [ ] Continuous integration and static deployment.
 
 ## Author
 
