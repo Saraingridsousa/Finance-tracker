@@ -50,3 +50,8 @@ button,
 select {
   font: inherit;
 }
+
+/* Controls and wide tables stay within the viewport; tables retain local scrolling. */
+select { max-width: 100%; }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, [role="tabpanel"]:focus-visible { outline: 2px solid #0891b2; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
