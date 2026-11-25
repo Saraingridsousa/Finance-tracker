@@ -25,3 +25,6 @@ data/
 backups/
 exports/
 .evidence/
+
+# Generated browser evidence
+browser-evidence/

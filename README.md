@@ -1,60 +1,75 @@
 <h1 align="center">Finance Tracker</h1>
-<p align="center">Personal finance analytics • Automated classification • Simulated banking integration</p>
+<p align="center"><strong>Financial Analytics & Process Automation</strong></p>
 <p align="center"><img src="https://skillicons.dev/icons?i=react,ts,vite,tailwind" alt="React, TypeScript, Vite and Tailwind CSS"/></p>
+<p align="center"><a href="https://github.com/Saraingridsousa/Finance-tracker/actions/workflows/validate.yml"><img src="https://github.com/Saraingridsousa/Finance-tracker/actions/workflows/validate.yml/badge.svg" alt="Validation workflow"/></a> <a href="https://github.com/Saraingridsousa/Finance-tracker/actions/workflows/deploy-pages.yml"><img src="https://github.com/Saraingridsousa/Finance-tracker/actions/workflows/deploy-pages.yml/badge.svg" alt="Deployment workflow"/></a></p>
+<p align="center"><a href="https://saraingridsousa.github.io/Finance-tracker/"><strong>Explore the live demo</strong></a> · <a href="docs/CASE-STUDY.md">Technical case study</a></p>
 
 ## Overview
 
-An independent, static portfolio demonstration adapted from a personal finance application. It uses deterministic fictional transactions to showcase automated categorization, financial analytics, interactive visualization and idempotent synchronization.
-
-**Live demo:** [Finance Tracker](https://saraingridsousa.github.io/Finance-tracker/) — synthetic data only. The project uses GitHub Actions for validation and static deployment. No live banking connection is available.
+Finance Tracker transforms fragmented financial information into an interactive analytics experience. This independent portfolio edition uses deterministic fictional data to demonstrate financial classification, automated processing, data integrity and software engineering without accessing real financial accounts.
 
 ## Features
 
-- Income, expenses, period result and investment contributions in BRL.
-- Monthly and category charts driven by shared financial selectors.
-- Search, filters, pagination and manual transaction/category corrections.
-- Simulated synchronization with stable transaction identifiers and reset.
-- Credit-card analytics: limits, open bills, six-month bill history, category distribution and detailed purchases by card and month; light/dark theme.
-- Connection dashboard with per-source synchronization, duplicate counts, attempt history and simulated failure recovery.
-- Investment portfolio with six fictional assets, consolidated metrics, allocation by class, six-month valuation history, per-asset gains/losses and sortable positions.
-- Monthly planning with editable category budgets, budget versus actual analytics, spending alerts, investment contribution goals and localized CSV reports for selected-month transactions and budgets.
+| Module | Capabilities |
+| --- | --- |
+| Overview | BRL income, expenses, period result, contributions, monthly/category charts, search, transaction edits and filters |
+| Investments | Six fictional assets, class allocation, historical valuations, gains/losses, sortable positions |
+| Cards | Credit limits, open bills, commitments, six-month history, category breakdown and purchase details |
+| Planning | Editable budgets, spending alerts, contribution goals, budget-versus-actual chart, CSV reports |
+| Connections | Per-source sync, deduplication, processing history and failure recovery simulation |
 
-## Run locally
+Light/dark theme, responsive layout, keyboard navigation and resettable in-memory data support interactive exploration.
 
-Requires Node.js 22.18+ compatible with the locked dependencies.
+## Application screenshots
 
-```bash
-npm ci
-npm run dev
-npm test
-npm run build
-```
+Generated from the actual fictional application by the Chromium validation and deployment workflow.
+
+| Financial overview | Investment portfolio |
+| --- | --- |
+| [![Overview](https://saraingridsousa.github.io/Finance-tracker/screenshots/overview.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/overview.png) | [![Investments](https://saraingridsousa.github.io/Finance-tracker/screenshots/investments.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/investments.png) |
+
+| Cards | Planning |
+| --- | --- |
+| [![Cards](https://saraingridsousa.github.io/Finance-tracker/screenshots/cards.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/cards.png) | [![Planning](https://saraingridsousa.github.io/Finance-tracker/screenshots/planning.png)](https://saraingridsousa.github.io/Finance-tracker/screenshots/planning.png) |
+
+[Connections](https://saraingridsousa.github.io/Finance-tracker/screenshots/connections.png) · [Dark theme](https://saraingridsousa.github.io/Finance-tracker/screenshots/investments-dark.png) · [Mobile layout](https://saraingridsousa.github.io/Finance-tracker/screenshots/overview-mobile.png)
 
 ## Architecture
 
 ```mermaid
 flowchart LR
- A[Fictional fixtures] --> B[In-memory demo adapter]
+ A[Synthetic fixtures] --> B[Session state and sync adapter]
  B --> C[Classification and financial selectors]
- C --> D[React dashboard and charts]
+ C --> D[React views and Recharts]
+ C --> E[Budget and CSV reports]
 ```
 
-The demo excludes pending and non-BRL transactions from BRL consumption totals, and treats confirmed own-account transfers, recognized investment allocations and credit-card bill payments separately. A Pix payment alone is not evidence of a self-transfer. The investment and card panels contain independent illustrative snapshots, not reconciled balances. Investment variation is calculated against position cost and is not time-weighted performance; historical values are synthetic. No market prices are fetched.
+Financial indicators exclude pending, non-BRL and neutral transactions. A Pix payment alone is not evidence of a self-transfer. Card and investment ledgers are illustrative and independent of the main transaction history. Investment variation is measured against cost, not time-weighted performance.
 
-## Privacy
+## Quality and delivery
 
-No bank credentials, actual bank API, real data, private configuration, SQLite databases, or personal Git history are included. Edits exist only in the current page session and are discarded when reloaded. Never enter real personal financial data in the demo.
+- Vitest domain regression tests.
+- Chromium browser smoke script for navigation, editing, exports, reset, theme and responsive widths.
+- Tracked-source privacy guard and npm dependency audit.
+- Lazy-loaded views and automated static deployment through GitHub Actions.
 
-## Roadmap
+See [workflow results](https://github.com/Saraingridsousa/Finance-tracker/actions) for actual validation status. Browser screenshots are generated during the deployment workflow; the case study explains the technical decisions and limits.
 
-- [x] Independent portfolio repository.
-- [x] Selected reusable React components and financial rules.
-- [x] Synthetic transaction adapter and interactive demo.
-- [x] Regression test cases for classification, chart consistency and idempotency.
-- [x] Verify clean install, typecheck, tests and build.
-- [ ] Browser accessibility and responsive acceptance.
-- [x] Continuous integration and Pages deployment workflow.
-- [x] Activate Pages and verify successful publication.
+## Run locally
+
+Requires Node.js 22.18+ compatible with the lockfile.
+
+```bash
+npm ci
+npm run dev
+npm test
+npm run typecheck
+npm run build
+```
+
+## Privacy and scope
+
+All financial values and institutions are fictional. No real bank API, credentials, personal financial records, persistent storage or private Git history are included. Edits are held in memory and discarded on reload. Never enter real financial information. The application is a technical demonstration, not financial advice or a production banking service.
 
 ## Author
 

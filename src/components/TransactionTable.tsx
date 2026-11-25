@@ -1,8 +1,8 @@
 import { Trash2 } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Category, Transaction } from '../types/finance';
-import { classifyTransaction, isRealExpense } from '../domain/finance';
+import { classifyTransaction, isRealExpense, isRealIncome } from '../domain/finance';
 
 const formatBrazilianDate = (value: string) => {
   if (!value) return '';
@@ -106,6 +106,12 @@ export function TransactionTable({
     direction: 'desc',
   });
   const descriptionInputRef = useRef<HTMLInputElement | null>(null);
+  const deleteDialogRef = useRef<HTMLDialogElement | null>(null);
+  useEffect(() => {
+    const dialog = deleteDialogRef.current;
+    if (pendingDelete && dialog && !dialog.open) dialog.showModal();
+    return () => { if (dialog?.open) dialog.close(); };
+  }, [pendingDelete]);
 
   const bankOptions = useMemo(
     () =>
@@ -146,7 +152,7 @@ export function TransactionTable({
     const filteredList = sortedTransactions.filter((transaction) => {
       const matchesSearch = !term || transaction.description.toLowerCase().includes(term);
       const matchesBank = selectedBank === 'all' || (transaction.bankName ?? transaction.bank ?? 'Outro') === selectedBank;
-      const matchesType = selectedType === 'all' || (selectedType === 'investment' ? transaction.isInvestment : !transaction.isInvestment && transaction.type === selectedType);
+      const matchesType = selectedType === 'all' || (selectedType === 'investment' ? transaction.isInvestment : selectedType === 'income' ? isRealIncome(transaction, categories) : isRealExpense(transaction, categories));
       const transactionMonth = getTransactionMonthKey(transaction.date);
       const matchesCategory =
         selectedCategory === 'all' ||
@@ -168,14 +174,15 @@ export function TransactionTable({
 
       return dateB.localeCompare(dateA);
     });
-  }, [search, selectedBank, selectedCategory, selectedMonth, selectedType, sortedTransactions]);
+  }, [search, selectedBank, selectedCategory, selectedMonth, selectedType, sortedTransactions, categories]);
 
   const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / pageSize));
 
+  const currentPage = Math.min(page, totalPages);
   const paginatedTransactions = useMemo(() => {
-    const start = (page - 1) * pageSize;
+    const start = (currentPage - 1) * pageSize;
     return filteredTransactions.slice(start, start + pageSize);
-  }, [filteredTransactions, page]);
+  }, [filteredTransactions, currentPage]);
 
   const topExpenses = useMemo(
     () =>
@@ -206,7 +213,7 @@ export function TransactionTable({
   return (
     <div className="space-y-6">
       {pendingDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="delete-transaction-title">
+        <dialog ref={deleteDialogRef} onCancel={event=>{event.preventDefault();setPendingDelete(null);}} className="m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-950/60 dark:bg-slate-900 dark:text-slate-100" aria-labelledby="delete-transaction-title">
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900">
             <h3 id="delete-transaction-title" className="text-lg font-semibold text-slate-900 dark:text-white">
               Excluir transação?
@@ -226,7 +233,7 @@ export function TransactionTable({
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setPendingDelete(null)}
+                autoFocus onClick={() => setPendingDelete(null)}
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
                 Cancelar
@@ -243,20 +250,20 @@ export function TransactionTable({
               </button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
-      <div className="flex flex-col gap-6">
+      <div className="flex min-w-0 flex-col gap-6">
         <section className="order-2 w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-none">
-          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h3 className="shrink-0 text-lg font-semibold text-slate-900 dark:text-white">Transações</h3>
-            <div className="flex flex-wrap items-center gap-2.5 lg:flex-nowrap">
+            <div className="flex min-w-0 flex-wrap items-center gap-2.5">
               <select
-                value={selectedBank}
+                aria-label="Filtrar por instituição" value={selectedBank}
                 onChange={(event) => {
                   setSelectedBank(event.target.value);
                   setPage(1);
                 }}
-                className="h-10 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                className="h-10 max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
               >
                 <option value="all">Todos os bancos</option>
                 {bankOptions.map((bank) => (
@@ -267,12 +274,12 @@ export function TransactionTable({
               </select>
 
               <select
-                value={selectedType}
+                aria-label="Filtrar por tipo" value={selectedType}
                 onChange={(event) => {
                   setSelectedType(event.target.value as 'all' | 'income' | 'expense' | 'investment');
                   setPage(1);
                 }}
-                className="h-10 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                className="h-10 max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
               >
                 <option value="all">Todos os tipos</option>
                 <option value="income">Entradas</option>
@@ -281,16 +288,16 @@ export function TransactionTable({
               </select>
 
               <select
-                value={selectedCategory}
+                aria-label="Filtrar por categoria" value={selectedCategory}
                 onChange={(event) => {
                   setSelectedCategory(event.target.value);
                   setPage(1);
                 }}
-                className="h-10 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                className="h-10 max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
               >
                 <option value="all">Todas as categorias</option>
                 <option value="uncategorized">Sem categoria</option>
-                {categories.map((category) => (
+                {categories.filter(category=>category.id!=='uncategorized').map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -298,12 +305,12 @@ export function TransactionTable({
               </select>
 
               <select
-                value={selectedMonth}
+                aria-label="Filtrar por mês" value={selectedMonth}
                 onChange={(event) => {
                   setSelectedMonth(event.target.value);
                   setPage(1);
                 }}
-                className="h-10 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                className="h-10 max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
               >
                 <option value="all">Todos os períodos</option>
                 {monthOptions.map((monthKey) => (
@@ -314,13 +321,13 @@ export function TransactionTable({
               </select>
 
               <input
-                value={search}
+                aria-label="Buscar por descrição" value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
                   setPage(1);
                 }}
                 placeholder="Buscar por descrição"
-                className="h-10 w-full shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none ring-0 transition placeholder:text-slate-400 focus:border-cyan-400 sm:w-64 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:placeholder:text-slate-500"
+                className="h-10 w-full max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none ring-0 transition placeholder:text-slate-400 focus:border-cyan-400 sm:w-64 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:placeholder:text-slate-500"
               />
             </div>
           </div>
@@ -358,6 +365,7 @@ export function TransactionTable({
                               {editingId === transaction.id ? (
                                 <input
                                   ref={descriptionInputRef}
+                                  aria-label="Editar descrição"
                                   autoFocus
                                   value={draftDescription}
                                   onChange={(event) => setDraftDescription(event.target.value)}
@@ -376,17 +384,18 @@ export function TransactionTable({
                                   className="w-full rounded-lg border border-cyan-400 bg-white px-2 py-1 text-sm text-slate-800 outline-none dark:bg-slate-950 dark:text-slate-100"
                                 />
                               ) : (
-                                <span
-                                  title="Duplo clique para editar descrição"
-                                  className="cursor-text font-medium text-slate-800 dark:text-slate-100"
-                                  onDoubleClick={() => {
+                                <button type="button"
+                                  title="Editar descrição"
+                                  aria-label={`Editar descrição: ${transaction.description}`}
+                                  className="break-words text-left font-medium text-slate-800 underline decoration-dotted underline-offset-2 dark:text-slate-100"
+                                  onClick={() => {
                                     setEditingId(transaction.id);
                                     setDraftDescription(transaction.description);
                                   }}
                                 >
                                   {transaction.description}
                                   {transaction.providerStatus === 'PENDING' && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">Pendente</span>}
-                                </span>
+                                </button>
                               )}
                               <div className="mt-1 flex flex-wrap items-center gap-2">
                                 <span className="text-xs text-slate-500 dark:text-slate-400">{transaction.isInvestment ? 'Investimento · fora dos gastos' : transaction.type === 'income' ? 'Entrada' : 'Saída'}</span>
@@ -415,7 +424,7 @@ export function TransactionTable({
                           </td>
                           <td className="px-4 py-3">
                             <select
-                              value={transaction.categoryId}
+                              aria-label={`Categoria de ${transaction.description}`} value={transaction.categoryId}
                               onChange={(event) => onUpdateCategory(transaction.id, event.target.value)}
                               className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-cyan-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
                             >
@@ -474,21 +483,21 @@ export function TransactionTable({
           <div className="mt-4 flex items-center justify-between gap-3">
             <button
               type="button"
-              onClick={() => onPageChange(page - 1)}
-              disabled={page === 1}
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
             >
               Anterior
             </button>
 
             <span className="text-sm text-slate-600 dark:text-slate-300">
-              Página {page} de {totalPages}
+              Página {currentPage} de {totalPages}
             </span>
 
             <button
               type="button"
-              onClick={() => onPageChange(page + 1)}
-              disabled={page >= totalPages}
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
             >
               Próxima
@@ -497,8 +506,8 @@ export function TransactionTable({
         </section>
 
         <aside className="order-1 w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-none">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Top 5 maiores gastos</h3>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Top 5 maiores gastos do período</h3>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {topExpenses.length ? (
               topExpenses.map((transaction, index) => {
                 const category = categories.find((item) => item.id === transaction.categoryId);
@@ -511,8 +520,8 @@ export function TransactionTable({
                       </span>
                       <span className="text-xs text-slate-500 dark:text-slate-400">{formatBrazilianDate(transaction.date)}</span>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="min-w-0 break-words">
                         <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{transaction.description}</p>
                         <span className="text-xs text-slate-500 dark:text-slate-400">{category?.name ?? 'Sem categoria'}</span>
                       </div>
